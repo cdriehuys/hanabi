@@ -78,6 +78,10 @@ class Deck:
 
         return deck
 
+    @property
+    def is_empty(self):
+        return not len(self.cards)
+
     def shuffle(self):
         """
         Shuffle the cards in the deck (in place).
