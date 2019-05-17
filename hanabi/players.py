@@ -3,15 +3,26 @@ class BasePlayer:
     A base class to define behavior that is expected from all players.
     """
 
-    def __init__(self, game):
+    def __init__(self, game, player_index):
         """
         Initialize a new player.
 
         Args:
             game:
                 The game that the player is participating in.
+            player_index:
+                The index that the player occupies in the game's
+                rotation.
         """
         self.game = game
+        self.player_index = player_index
+
+    def __str__(self):
+        """
+        Returns:
+            A string describing the player's rotation in the game.
+        """
+        return f'Player {self.player_index}'
 
     def discard(self, card_index):
         """

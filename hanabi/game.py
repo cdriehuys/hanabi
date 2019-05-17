@@ -46,7 +46,7 @@ class Game:
         self.discards = []
 
         # Player creation
-        self.players = [klass(self) for klass in player_classes]
+        self.players = [klass(self, i) for i, klass in enumerate(player_classes)]
         self.player_hands = collections.defaultdict(list)
 
         for _ in range(self.CARDS_PER_PLAYER):
@@ -70,11 +70,7 @@ class Game:
         card = self.player_hands[player].pop(card_index)
         self.discards.append(card)
 
-        logger.info(
-            'Player %s discarded a %s',
-            player,
-            card,
-        )
+        logger.info('%s discarded a %s', player, card)
 
         self.draw_card(player)
         self.hints_remaining += 1
@@ -190,6 +186,20 @@ class Game:
 
             player_index = (player_index + 1) % len(self.players)
 
+            # If the amount of remaining turns is not None, we can
+            # assume the deck is empty and we are now in the final
+            # round.
+            if self.turns_remaining is not None:
+                self.turns_remaining -= 1
+
+                logger.debug('%d turn(s) remaining.', self.turns_remaining)
+
+        logger.info('The game is complete.')
+
+    @property
+    def score(self):
+        return sum(stack for stack in self.stacks)
+
 
 def main():
     """
@@ -197,6 +207,8 @@ def main():
     """
     game = Game([players.ConsolePlayer, players.ConsolePlayer])
     game.play()
+
+    print(f'Game complete with a score of: {game.score}')
 
 
 if __name__ == '__main__':
