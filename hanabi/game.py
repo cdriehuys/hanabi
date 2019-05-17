@@ -6,7 +6,7 @@ import logging
 from hanabi import cards, players
 
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
 
@@ -55,6 +55,23 @@ class Game:
 
         # Game completion status
         self.turns_remaining = None
+
+    def describe_other_hands(self, player):
+        """
+        Get representations of each of the other players' hands.
+
+        Args:
+            player:
+                The player asking for the other hands. Their hand will
+                not be included.
+
+        Returns:
+            A dictionary of the other players' hands.
+        """
+        hands = self.player_hands.copy()
+        del hands[player]
+
+        return hands
 
     def discard(self, player, card_index):
         """
@@ -205,7 +222,7 @@ def main():
     """
     The entry-point into the game.
     """
-    game = Game([players.ConsolePlayer, players.ConsolePlayer])
+    game = Game([players.ConsolePlayer for _ in range(4)])
     game.play()
 
     print(f'Game complete with a score of: {game.score}')

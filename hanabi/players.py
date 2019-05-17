@@ -1,3 +1,6 @@
+from hanabi.renderers.console import ConsoleRenderer
+
+
 class BasePlayer:
     """
     A base class to define behavior that is expected from all players.
@@ -48,6 +51,14 @@ class ConsolePlayer(BasePlayer):
     A player who interacts with the game through the console.
     """
 
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize the console player's renderer.
+        """
+        super().__init__(*args, **kwargs)
+
+        self.renderer = ConsoleRenderer.for_game(self.game)
+
     @staticmethod
     def get_move_type():
         """
@@ -88,6 +99,10 @@ class ConsolePlayer(BasePlayer):
 
     def get_move(self):
         print(f"It is now {self}'s turn")
+
+        print(self.renderer.render_game_info())
+        print(self.renderer.render_discards())
+        print(self.renderer.render_other_hands(self))
 
         move_type = self.get_move_type()
 
