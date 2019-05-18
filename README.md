@@ -28,7 +28,7 @@ following results:
 ```
 Ran 100,000 trials in 32.26 seconds.
 	Average score: 23.04
-	Wins: 2,2007 (22.01%)
+	Wins: 22,007 (22.01%)
 ```
 
 In theory, we can improve on this method by improving our heuristic for a card's
@@ -61,6 +61,23 @@ Making this change yields a slight improvement in win rate:
 Ran 100,000 trials in 38.58 seconds.
 	Average score: 23.13
 	Wins: 28,473 (28.47%)
+```
+
+The next realization was that there was a major difference between our omniscient
+AI and a real player in the way the game is played. If a real player does not
+have any playable cards or known useless cards, they also have the option of
+giving a hint to another player. Our implementation simply ignored the whole
+hint process and went ahead and made a best guess discard.
+
+While hints are useless to our AI since they already know their entire hand, the
+process of giving a hint lets us progress through a turn without discarding a
+potentially important card. This improvement yields the biggest improvement we
+have seen in a while:
+
+```
+Ran 100,000 trials in 41.30 seconds.
+	Average score: 24.22
+	Wins: 52,477 (52.48%)
 ```
 
 ## License

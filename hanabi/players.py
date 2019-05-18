@@ -159,6 +159,15 @@ class GodPlayer(BasePlayer):
 
                 return
 
+        # If we have no useless cards, we would rather "use" a hint
+        # rather than discard a potentially important card. Since hints
+        # are useless to an omniscient AI, we just simulate using the
+        # hint here.
+        if self.game.hints_remaining > 0:
+            self.game.hints_remaining -= 1
+
+            return
+
         logger.info('%s has no useless cards so discarding first card.', self)
 
         # The last heuristic we can apply is to sort cards by descending
