@@ -11,8 +11,8 @@ Python implementation of Hanabi for exploring strategies and AI possibilities.
 By creating an AI that knows what cards it has, we can roughly determine the
 percentage of games that are winnable.
 
-Our first approach is to play any playable card and discard the first card in
-the hand if there are no playable cards. This yields the following results:
+Our first approach was to play any playable card and discard the first card in
+the hand if there were no playable cards. This yielded the following results:
 
 ```
 Ran 100,000 trials in 33.03 seconds.
@@ -31,17 +31,17 @@ Ran 100,000 trials in 32.26 seconds.
 	Wins: 22,007 (22.01%)
 ```
 
-In theory, we can improve on this method by improving our heuristic for a card's
-usefulness. If a card is no longer playable because the color has been killed
-due to the discarding of all of a lower number of that color, the card is no
-longer useful. For example, if we have a green 4 but all the green 3s were
+In theory, we could improve on this method by improving our heuristic for a 
+card's usefulness. If a card is no longer playable because the color has been 
+killed due to the discarding of all of a lower number of that color, the card is
+no longer useful. For example, if we have a green 4 but all the green 3s were
 discarded, then the green 4 is no longer useful.
 
-It turns out this "improvement" does not impact either the average score or
-number of wins in any significant manner. We would not expect a change to the
+It turns out this "improvement" did not impact either the average score or
+number of wins in any significant manner. We did not expect a change to the
 winning percentage because if we have killed a color through too many discards,
-then the game is not winnable by definition. However, we would have expected the
-average score to change more. The results we see are below:
+then the game is not winnable by definition. However, we did expect the average
+score to improve more. The results we see are below:
 
 ```
 Ran 100,000 trials in 37.04 seconds.
@@ -49,9 +49,9 @@ Ran 100,000 trials in 37.04 seconds.
 	Wins: 22,083 (22.08%)
 ```
 
-Inspecting the logs from some of the games, we can see that the fallback of
+Inspecting the logs from some of the games showed that the fallback of
 discarding the first card in the player's hand if none of the cards are useless
-is backfiring sometimes. For example, if we have a 5 at the first position in
+was backfiring sometimes. For example, if we have a 5 at the first position in
 our hand but we have a 1 somewhere else in our hand, we should most likely
 discard the 1 since discarding the 5 would definitely lead to a loss.
 
