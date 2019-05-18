@@ -2,11 +2,14 @@
 
 import collections
 import logging
+import time
+
+from tqdm import tqdm
 
 from hanabi import cards, players
 
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
 
@@ -206,8 +209,47 @@ class Game:
         """
         return (
             self.bombs >= self.MAX_BOMBS
+            or all(self.stacks[color] == 5 for color in cards.Colors)
             or self.deck.is_empty and self.turns_remaining == 0
         )
+
+    def is_card_useful(self, card):
+        """
+        Determine if a card is still useful.
+
+        Args:
+            card:
+                The card to determine the usefulness of.
+
+        Returns:
+            A boolean indicating if the card is still useful.
+        """
+        if card.number <= self.stacks[card.color]:
+            return False
+
+        discarded_counts = collections.defaultdict(int)
+        for discard in self.discards:
+            if discard.color == card.color:
+                discarded_counts[discard.number] += 1
+
+        for i in range(card.number - 1, 0, -1):
+            if discarded_counts[i] == cards.Deck.CARD_COUNT_MAP[i]:
+                return False
+
+        return True
+
+    def is_playable(self, card):
+        """
+        Determine if a card is playable.
+
+        Args:
+            card:
+                The card to test for playability.
+
+        Returns:
+            A boolean indicating if the provided card is playable.
+        """
+        return card.number == self.stacks[card.color] + 1
 
     def is_valid_card_index(self, player, card_index):
         """
@@ -267,7 +309,7 @@ class Game:
         was_played = False
         card = self.player_hands[player].pop(card_index)
 
-        if card.number == self.stacks[card.color] + 1:
+        if self.is_playable(card):
             self.stacks[card.color] += 1
 
             logger.info(
@@ -295,6 +337,8 @@ class Game:
 
             self.discard_player_card(player, card, give_hint=False)
 
+        self.draw_card(player)
+
         return was_played
 
     @property
@@ -306,10 +350,26 @@ def main():
     """
     The entry-point into the game.
     """
-    game = Game([players.ConsolePlayer for _ in range(4)])
-    game.play()
+    scores = []
+    trials = 100_000
 
-    print(f'Game complete with a score of: {game.score}')
+    start = time.time()
+
+    for _ in tqdm(range(trials)):
+        game = Game([players.GodPlayer for _ in range(4)])
+        game.play()
+
+        scores.append(game.score)
+
+    end = time.time()
+    avg_score = float(sum(scores)) / len(scores)
+    score_counts = collections.Counter(scores)
+    wins = score_counts[25]
+    win_percentage = wins / float(trials) * 100
+
+    print(f'Ran {trials:,} trials in {end - start:.2f} seconds.')
+    print(f'\tAverage score: {avg_score:.2f}')
+    print(f'\tWins: {wins:,} ({win_percentage:.2f}%)')
 
 
 if __name__ == '__main__':

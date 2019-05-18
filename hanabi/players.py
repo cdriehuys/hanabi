@@ -1,4 +1,10 @@
+import logging
+
+from cards import Deck
 from hanabi.renderers.console import ConsoleRenderer
+
+
+logger = logging.getLogger(__name__)
 
 
 class BasePlayer:
@@ -123,3 +129,44 @@ class ConsolePlayer(BasePlayer):
             self.play(self.get_card_index())
         else:
             raise ValueError(f'Received unexpected move type: {move_type}')
+
+
+class GodPlayer(BasePlayer):
+    """
+    A god player has knowledge of their own hand.
+    """
+
+    def get_move(self):
+        """
+        Play any card that is playable. If none of the cards are
+        playable, the player will try to find a card that is no longer
+        needed and discard it.
+        """
+        cards = self.game.player_hands[self]
+
+        # If any card is playable, we should play it.
+        for i, card in enumerate(cards):
+            if self.game.is_playable(card):
+                self.play(i)
+
+                return
+
+        # After checking for playable cards, we should get rid of any
+        # card we know is useless.
+        for i, card in enumerate(cards):
+            if not self.game.is_card_useful(card):
+                self.discard(i)
+
+                return
+
+        logger.info('%s has no useless cards so discarding first card.', self)
+
+        # The last heuristic we can apply is to sort cards by descending
+        # rarity. This decreases the odds that we toss out the only 5
+        # for example.
+        sorted_cards = cards.copy()
+        sorted_cards.sort(
+            key=lambda c: Deck.CARD_COUNT_MAP[c.number], reverse=True
+        )
+
+        self.discard(cards.index(sorted_cards[0]))
