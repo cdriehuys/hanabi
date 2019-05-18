@@ -6,7 +6,7 @@ import logging
 from hanabi import cards, players
 
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
@@ -20,6 +20,18 @@ class Game:
     """
     The number of cards that each player should have in their hand at
     all times (until there are no cards left in the deck).
+    """
+
+    HINT_GIVING_NUMBERS = [5]
+    """
+    A list of the numbers that give a hint when played. The typical
+    behavior is to give a hint when a stack is completed.
+    """
+
+    MAX_BOMBS = 4
+    """
+    The maximum number of bombs that can be set off before the game is
+    lost.
     """
 
     MAX_HINTS = 8
@@ -54,6 +66,7 @@ class Game:
                 self.player_hands[player].append(self.deck.cards.pop())
 
         # Game completion status
+        self.bombs = 0
         self.turns_remaining = None
 
     def describe_other_hands(self, player):
@@ -73,9 +86,32 @@ class Game:
 
         return hands
 
-    def discard(self, player, card_index):
+    def discard_player_card(self, player, card, give_hint=True):
         """
-        Discard a card from a player's hand.
+        Discard a card that was in a player's hand and give them a new
+        card.
+
+        Args:
+            player:
+                The player who is discarding the card.
+            card:
+                The card being discarded.
+            give_hint:
+                A boolean indicating if a hint should be given for the
+                discard.
+        """
+        self.discards.append(card)
+
+        logger.info('%s discarded a %s', player, card)
+
+        self.draw_card(player)
+
+        if give_hint:
+            self.hints_remaining += 1
+
+    def discard_player_card_by_index(self, player, card_index):
+        """
+        Discard a card from a player's hand and give them a new card.
 
         Args:
             player:
@@ -84,13 +120,9 @@ class Game:
                 The index within the player's hand of the card to
                 discard.
         """
-        card = self.player_hands[player].pop(card_index)
-        self.discards.append(card)
-
-        logger.info('%s discarded a %s', player, card)
-
-        self.draw_card(player)
-        self.hints_remaining += 1
+        self.discard_player_card(
+            player, self.player_hands[player].pop(card_index)
+        )
 
     def draw_card(self, player):
         """
@@ -172,7 +204,10 @@ class Game:
             A boolean indicating if the game is finished because the
             cards have run out.
         """
-        return self.deck.is_empty and self.turns_remaining == 0
+        return (
+            self.bombs >= self.MAX_BOMBS
+            or self.deck.is_empty and self.turns_remaining == 0
+        )
 
     def is_valid_card_index(self, player, card_index):
         """
@@ -213,9 +248,58 @@ class Game:
 
         logger.info('The game is complete.')
 
+    def play_card(self, player, card_index):
+        """
+        Play a card from the specified player's hand.
+
+        Args:
+            player:
+                The player whose hand is played from.
+            card_index:
+                The index of the card to play within the given player's
+                hand.
+
+        Returns:
+            A boolean indicating if the card was successfully played. A
+            play is unsuccessful if it is not the next card in any of
+            the stacks.
+        """
+        was_played = False
+        card = self.player_hands[player].pop(card_index)
+
+        if card.number == self.stacks[card.color] + 1:
+            self.stacks[card.color] += 1
+
+            logger.info(
+                '%s played the %s',
+                player,
+                card,
+            )
+
+            if card.number in self.HINT_GIVING_NUMBERS:
+                logger.info(
+                    'Giving an additional hint because a %d was played.',
+                    card.number,
+                )
+                self.hints_remaining += 1
+
+            was_played = True
+        else:
+            logger.info(
+                '%s tried to play the %s which is not playable.', player, card
+            )
+            logger.debug(
+                'The %s is not playable on the stacks %s', card, self.stacks
+            )
+            self.bombs += 1
+
+            self.discard_player_card(player, card, give_hint=False)
+
+        return was_played
+
     @property
     def score(self):
-        return sum(stack for stack in self.stacks)
+        return sum(stack for stack in self.stacks.values()) - self.bombs
 
 
 def main():

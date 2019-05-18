@@ -15,6 +15,20 @@ class ConsoleRenderer:
         """
         self.game = game
 
+    @staticmethod
+    def buffer_section(rendered):
+        """
+        Add a buffer to a rendered section.
+
+        Args:
+            rendered:
+                The rendered string to add a buffer to.
+
+        Returns:
+            The original string, buffered with newlines.
+        """
+        return f'\n\n{rendered}\n\n'
+
     @classmethod
     def for_game(cls, game):
         """
@@ -44,20 +58,22 @@ class ConsoleRenderer:
         discards.sort(key=lambda card: card.color.value)
 
         if not discards:
-            return "\nDiscards: \n\nNo cards have been discarded.\n\n"
+            return self.buffer_section(
+                "Discards: \n\nNo cards have been discarded."
+            )
 
         columns = {}
         for color, cards in itertools.groupby(discards, lambda card: card.color.value):
             columns[color.title()] = list(cards)
             columns[color.title()].sort(key=lambda card: card.number)
 
-        ret_str = '\nDiscards:\n\n'
+        ret_str = 'Discards:\n\n'
 
         for row in itertools.zip_longest(*columns.values(), fillvalue=''):
             ret_str += ''.join(str(val).ljust(self.COLUMN_WIDTH).title() for val in row)
             ret_str += '\n'
 
-        return ret_str
+        return self.buffer_section(ret_str)
 
     def render_game_info(self):
         """
@@ -66,7 +82,7 @@ class ConsoleRenderer:
         Returns:
             A string containing a basic overview of the game.
         """
-        ret_str = "\n\nGame Overview:\n"
+        ret_str = "Game Overview:\n"
         ret_str += f"\t          Score: {self.game.score}\n"
         ret_str += f"\tRemaining Cards: {len(self.game.deck.cards)}\n"
 
@@ -75,9 +91,7 @@ class ConsoleRenderer:
         else:
             ret_str += f"\tTurns Remaining: {self.game.turns_remaining}\n"
 
-        ret_str += "\n"
-
-        return ret_str
+        return self.buffer_section(ret_str)
 
     def render_other_hands(self, player):
         """
@@ -93,7 +107,7 @@ class ConsoleRenderer:
         """
         hands = self.game.describe_other_hands(player)
 
-        ret_str = '\nPlayer Hands:\n\n'
+        ret_str = 'Player Hands:\n\n'
         ret_str += ''.join(str(player).ljust(self.COLUMN_WIDTH) for player in hands)
         ret_str += '\n'
 
@@ -101,4 +115,18 @@ class ConsoleRenderer:
             ret_str += ''.join(str(val).ljust(self.COLUMN_WIDTH).title() for val in row)
             ret_str += '\n'
 
-        return ret_str
+        return self.buffer_section(ret_str)
+
+    def render_stacks(self):
+        """
+        Render the stacks of cards that have been played.
+
+        Returns:
+            A string representation of the stacks of played cards.
+        """
+        ret_str = 'Played Cards:\n\n'
+        ret_str += ''.join(color.value.title().ljust(self.COLUMN_WIDTH) for color in self.game.stacks)
+        ret_str += '\n'
+        ret_str += ''.join(str(value).ljust(self.COLUMN_WIDTH) for value in self.game.stacks.values())
+
+        return self.buffer_section(ret_str)

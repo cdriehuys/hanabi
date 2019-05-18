@@ -35,7 +35,17 @@ class BasePlayer:
             card_index:
                 The index of the card in the player's hand to discard.
         """
-        self.game.discard(self, card_index)
+        self.game.discard_player_card_by_index(self, card_index)
+
+    def play(self, card_index):
+        """
+        Play the card at the given index.
+
+        Args:
+            card_index:
+                The index of the card in the player's hand to play.
+        """
+        self.game.play_card(self, card_index)
 
     def get_move(self):
         """
@@ -71,7 +81,7 @@ class ConsolePlayer(BasePlayer):
         while not valid:
             move = input('What type of move do you wish to make: ').lower()
 
-            if move in ['discard']:
+            if move in ['discard', 'play']:
                 return move
 
             print('Please enter a valid move type.')
@@ -102,9 +112,14 @@ class ConsolePlayer(BasePlayer):
 
         print(self.renderer.render_game_info())
         print(self.renderer.render_discards())
+        print(self.renderer.render_stacks())
         print(self.renderer.render_other_hands(self))
 
         move_type = self.get_move_type()
 
         if move_type == 'discard':
             self.discard(self.get_card_index())
+        elif move_type == 'play':
+            self.play(self.get_card_index())
+        else:
+            raise ValueError(f'Received unexpected move type: {move_type}')
