@@ -11,6 +11,8 @@ Python implementation of Hanabi for exploring strategies and AI possibilities.
 By creating an AI that knows what cards it has, we can roughly determine the
 percentage of games that are winnable.
 
+#### Playable Cards
+
 Our first approach was to play any playable card and discard the first card in
 the hand if there were no playable cards. This yielded the following results:
 
@@ -19,6 +21,8 @@ Ran 100,000 trials in 33.03 seconds.
 	Average score: 20.97
 	Wins: 3,228 (3.23%)
 ```
+
+#### Smarter Discards
 
 To improve on this method, we can be more intelligent about how we discard
 cards. If a card has a lesser value than the stack for the card's color, it is
@@ -30,6 +34,8 @@ Ran 100,000 trials in 32.26 seconds.
 	Average score: 23.04
 	Wins: 22,007 (22.01%)
 ```
+
+#### Looking at "Killed" Cards
 
 In theory, we could improve on this method by improving our heuristic for a 
 card's usefulness. If a card is no longer playable because the color has been 
@@ -49,6 +55,8 @@ Ran 100,000 trials in 37.04 seconds.
 	Wins: 22,083 (22.08%)
 ```
 
+#### Improved Probability Fallback
+
 Inspecting the logs from some of the games showed that the fallback of
 discarding the first card in the player's hand if none of the cards are useless
 was backfiring sometimes. For example, if we have a 5 at the first position in
@@ -62,6 +70,8 @@ Ran 100,000 trials in 38.58 seconds.
 	Average score: 23.13
 	Wins: 28,473 (28.47%)
 ```
+
+#### Simulating Hints
 
 The next realization was that there was a major difference between our omniscient
 AI and a real player in the way the game is played. If a real player does not
