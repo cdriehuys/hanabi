@@ -99,6 +99,8 @@ player count has a huge impact on win rate. If we drop the player count to two
 or raise it to five, the win rate drops down to ~30%, but with three players it
 jumps to ~57%.
 
+*__Note:__ See the section below regarding win rate.*
+
 #### Optimal Card to Play
 
 Our next observation was that if a player has multiple playable cards, there is
@@ -112,6 +114,13 @@ Ran 100,000 trials in 50.77 seconds.
 	Average score: 24.35
 	Wins: 58,600 (58.60%)
 ```
+
+#### Win Rate Musings
+
+After considering strategies further, it seems our seemingly low win rate is not
+necessarily a bug but more a result of a lack of strategies for the endgame. As
+the game comes to a close, the order of plays becomes more important to ensure
+that all cards can be played before the game ends.
 
 ## License
 
