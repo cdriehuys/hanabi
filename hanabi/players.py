@@ -162,6 +162,13 @@ class GodPlayer(BasePlayer):
 
             return
 
+        # If the game is about to end, attempt to prolong it by giving a
+        # hint.
+        if len(self.game.deck.cards) == 1 and self.game.hints_remaining > 0:
+            self.game.hints_remaining -= 1
+
+            return
+
         # After checking for playable cards, we should get rid of any
         # card we know is useless.
         for index in unplayable_indices:

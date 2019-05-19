@@ -122,6 +122,21 @@ necessarily a bug but more a result of a lack of strategies for the endgame. As
 the game comes to a close, the order of plays becomes more important to ensure
 that all cards can be played before the game ends.
 
+#### Prolonging the Game
+
+As soon as the last card is drawn from the deck, the game lasts for one more
+round, such that the person who draws the last card gets the last turn. In order
+to maximize the number of cards that can be played, we want to delay this as
+much as possible. This shifts our strategy such that the AI prefers to give
+hints instead of discarding when there is one card left in the deck. With this
+change, we get the following results:
+
+```
+Ran 100,000 trials in 54.82 seconds.
+	Average score: 24.41
+	Wins: 60,511 (60.51%)
+```
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
