@@ -1,3 +1,4 @@
+import collections
 import logging
 
 from cards import Deck
@@ -142,20 +143,34 @@ class GodPlayer(BasePlayer):
         playable, the player will try to find a card that is no longer
         needed and discard it.
         """
+        IndexedCard = collections.namedtuple(
+            'IndexedCard', ('card', 'hand_index')
+        )
+
         cards = self.game.player_hands[self]
 
-        # If any card is playable, we should play it.
+        playable_cards = []
+        unplayable_cards = []
+
+        # Sort cards by playability
         for i, card in enumerate(cards):
             if self.game.is_playable(card):
-                self.play(i)
+                playable_cards.append(IndexedCard(card, i))
+            else:
+                unplayable_cards.append(IndexedCard(card, i))
 
-                return
+        # If any card is playable, we should play it.
+        if playable_cards:
+            indexed_card = min(playable_cards, key=lambda ic: ic.card.number)
+            self.play(indexed_card.hand_index)
+
+            return
 
         # After checking for playable cards, we should get rid of any
         # card we know is useless.
-        for i, card in enumerate(cards):
-            if not self.game.is_card_useful(card):
-                self.discard(i)
+        for indexed_card in unplayable_cards:
+            if not self.game.is_card_useful(indexed_card.card):
+                self.discard(indexed_card.hand_index)
 
                 return
 
@@ -173,9 +188,8 @@ class GodPlayer(BasePlayer):
         # The last heuristic we can apply is to sort cards by descending
         # rarity. This decreases the odds that we toss out the only 5
         # for example.
-        sorted_cards = cards.copy()
-        sorted_cards.sort(
-            key=lambda c: Deck.CARD_COUNT_MAP[c.number], reverse=True
+        unplayable_cards.sort(
+            key=lambda ic: Deck.CARD_COUNT_MAP[ic.card.number], reverse=True
         )
 
-        self.discard(cards.index(sorted_cards[0]))
+        self.discard(unplayable_cards[0].hand_index)

@@ -144,9 +144,12 @@ class Game:
 
             return
 
-        logger.debug('Dealing %s a new card.', player)
+        logger.info('Dealing %s a new card.', player)
 
         self.player_hands[player].append(self.deck.cards.pop())
+        logger.debug(
+            'Dealing %s a %s.', player, self.player_hands[player][-1]
+        )
 
         if self.deck.is_empty and self.turns_remaining is None:
             self.turns_remaining = len(self.players)
@@ -313,9 +316,10 @@ class Game:
             self.stacks[card.color] += 1
 
             logger.info(
-                '%s played the %s',
+                '%s played the %s increasing the score to %d',
                 player,
                 card,
+                self.score,
             )
 
             if card.number in self.HINT_GIVING_NUMBERS:
@@ -351,7 +355,8 @@ def main():
     The entry-point into the game.
     """
     scores = []
-    trials = 100_000
+    trials = 10_000
+    # trials = 10
 
     start = time.time()
 

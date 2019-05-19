@@ -90,6 +90,32 @@ Ran 100,000 trials in 41.30 seconds.
 	Wins: 52,477 (52.48%)
 ```
 
+#### Bugs and Player Count
+
+At this point it is quite apparent there is a bug somewhere in our
+implementation. The logs from some runs show that players are holding on to
+fives they could have played which results in an imperfect score. Additionally,
+player count has a huge impact on win rate. If we drop the player count to two
+or raise it to five, the win rate drops down to ~30%, but with three players it
+jumps to ~57%.
+
+#### Optimal Card to Play
+
+Our next observation was that if a player has multiple playable cards, there is
+a "best" choice. The logic here is that we want to maximize the number of
+players who can follow up the play. For now, our implementation simply plays the
+lowest numbered playable card. This yielded a slight improvement to both the win
+rate and average score:
+
+```
+Ran 10,000 trials in 98.71 seconds.
+	Average score: 24.35
+	Wins: 5,826 (58.26%)
+```
+
+*__Note:__ During this tweak we absolutely demolished the performance of our AI
+which led to the decreased number of trials.*
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
