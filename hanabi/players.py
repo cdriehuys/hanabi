@@ -143,34 +143,30 @@ class GodPlayer(BasePlayer):
         playable, the player will try to find a card that is no longer
         needed and discard it.
         """
-        IndexedCard = collections.namedtuple(
-            'IndexedCard', ('card', 'hand_index')
-        )
-
         cards = self.game.player_hands[self]
 
-        playable_cards = []
-        unplayable_cards = []
+        playable_indices = []
+        unplayable_indices = []
 
         # Sort cards by playability
         for i, card in enumerate(cards):
             if self.game.is_playable(card):
-                playable_cards.append(IndexedCard(card, i))
+                playable_indices.append(i)
             else:
-                unplayable_cards.append(IndexedCard(card, i))
+                unplayable_indices.append(i)
 
         # If any card is playable, we should play it.
-        if playable_cards:
-            indexed_card = min(playable_cards, key=lambda ic: ic.card.number)
-            self.play(indexed_card.hand_index)
+        if playable_indices:
+            index = min(playable_indices, key=lambda i: cards[i].number)
+            self.play(index)
 
             return
 
         # After checking for playable cards, we should get rid of any
         # card we know is useless.
-        for indexed_card in unplayable_cards:
-            if not self.game.is_card_useful(indexed_card.card):
-                self.discard(indexed_card.hand_index)
+        for index in unplayable_indices:
+            if not self.game.is_card_useful(cards[index]):
+                self.discard(index)
 
                 return
 
@@ -188,8 +184,8 @@ class GodPlayer(BasePlayer):
         # The last heuristic we can apply is to sort cards by descending
         # rarity. This decreases the odds that we toss out the only 5
         # for example.
-        unplayable_cards.sort(
-            key=lambda ic: Deck.CARD_COUNT_MAP[ic.card.number], reverse=True
+        unplayable_indices.sort(
+            key=lambda i: Deck.CARD_COUNT_MAP[cards[i].number], reverse=True
         )
 
-        self.discard(unplayable_cards[0].hand_index)
+        self.discard(unplayable_indices[0])

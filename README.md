@@ -108,13 +108,10 @@ lowest numbered playable card. This yielded a slight improvement to both the win
 rate and average score:
 
 ```
-Ran 10,000 trials in 98.71 seconds.
+Ran 100,000 trials in 50.77 seconds.
 	Average score: 24.35
-	Wins: 5,826 (58.26%)
+	Wins: 58,600 (58.60%)
 ```
-
-*__Note:__ During this tweak we absolutely demolished the performance of our AI
-which led to the decreased number of trials.*
 
 ## License
 

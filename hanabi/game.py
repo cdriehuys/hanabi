@@ -355,7 +355,7 @@ def main():
     The entry-point into the game.
     """
     scores = []
-    trials = 10_000
+    trials = 100_000
     # trials = 10
 
     start = time.time()
